@@ -77,6 +77,8 @@ export function wavToOgg(wav: Buffer, outPath: string): Promise<void> {
     ])
     p.on('error', reject)
     p.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`ffmpeg exit ${code}`))))
+    // ffmpeg có thể thoát sớm (bị tắt) → tránh lỗi "write EOF" làm sập cả tiến trình
+    p.stdin.on('error', reject)
     p.stdin.end(wav)
   })
 }
