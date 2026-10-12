@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Segoe UI', 'Yu Gothic UI', 'Meiryo', system-ui, sans-serif;
+  --font-jp: 'Yu Gothic UI', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif;
+  --font-jp-serif: 'Yu Mincho', 'YuMincho', 'Noto Serif JP', serif;
+
+  --color-paper: #f7f6f3;
+  --color-surface: #ffffff;
+  --color-ink: #1f1d1a;
+  --color-muted: #6f6a62;
+  --color-line: #e7e4de;
+  --color-accent: #c8402f; /* 朱色 */
+  --color-accent-soft: #fbe9e5;
+  --color-indigo: #2f4b7c; /* 藍色 */
+  --color-indigo-soft: #e6ecf6;
+  --color-good: #2f7d4f;
+  --color-good-soft: #e3f2e8;
+  --color-warn: #b7791f;
+  --color-warn-soft: #fbf0dc;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+    --color-paper: #161514;
+    --color-surface: #201f1d;
+    --color-ink: #ecebe8;
+    --color-muted: #a19c93;
+    --color-line: #34322e;
+    --color-accent: #e5654f;
+    --color-accent-soft: #3a2420;
+    --color-indigo: #8fb0e6;
+    --color-indigo-soft: #222c3d;
+    --color-good: #5fbf85;
+    --color-good-soft: #1d3326;
+    --color-warn: #e0a84d;
+    --color-warn-soft: #3a2e1a;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ruby rt {
+    font-size: 0.5em;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 999px;
+    border: 3px solid var(--color-paper);
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  .jp {
+    font-family: var(--font-jp);
+  }
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+  }
+  .fade-in {
+    animation: fade-in 0.18s ease-out;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
