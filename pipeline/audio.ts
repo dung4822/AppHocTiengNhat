@@ -37,12 +37,21 @@ async function main() {
   const t0 = Date.now()
   let done = 0
   let failed = 0
+  let streak = 0
+  let dead = false
   await pool(todo, 2, async (j) => {
+    if (dead) return
     try {
       await synthToFile(j.text, path.join(AUDIO_DIR, j.file), { accent: j.accent })
+      streak = 0
     } catch (e) {
       failed++
       console.error('Lỗi audio:', j.text, (e as Error).message)
+      // Lỗi liên tiếp + engine không phản hồi → dừng thay vì báo lỗi hàng nghìn file
+      if (++streak >= 5 && !(await engineAlive())) {
+        dead = true
+        console.error('Engine đã dừng. Mở lại tools/start-aivis-hidden.vbs rồi chạy lại lệnh này để làm tiếp.')
+      }
     }
     done++
     if (done % 100 === 0) {
