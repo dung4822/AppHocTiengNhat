@@ -56,8 +56,9 @@ export function learnerProfile() {
   const targets = (
     db
       .prepare(
-        `SELECT v.word FROM vocab v JOIN cards c ON c.deck='vocab' AND c.note_id=v.id AND c.ord=0
-         WHERE c.state = 0 AND c.queue = 0 ORDER BY c.position LIMIT 5`
+        `SELECT v.word, MIN(c.position) p FROM vocab v JOIN cards c ON c.deck='vocab' AND c.note_id=v.id AND c.ord=0
+         WHERE c.state = 0 AND c.queue = 0 AND v.word NOT IN (SELECT v2.word FROM vocab v2 JOIN cards c2 ON c2.deck='vocab' AND c2.note_id=v2.id AND c2.ord=0 WHERE c2.state != 0)
+         GROUP BY v.word ORDER BY p LIMIT 5`
       )
       .all() as { word: string }[]
   ).map((r) => r.word)

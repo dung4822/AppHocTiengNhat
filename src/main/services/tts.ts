@@ -13,9 +13,14 @@ export const AIVIS_URL = process.env.AIVIS_URL ?? 'http://127.0.0.1:10101'
 /** Hai giọng mặc định của AivisSpeech: まお (nữ) và コハク (nam). */
 export const VOICES = { female: 888753760, male: 1878365376 }
 
+let lastAlive = 0
+
+/** Engine có đang chạy không (khi đang bận tổng hợp giọng, /version có thể trả chậm). */
 export async function engineAlive(): Promise<boolean> {
+  if (Date.now() - lastAlive < 15_000) return true
   try {
-    const r = await fetch(`${AIVIS_URL}/version`, { signal: AbortSignal.timeout(2000) })
+    const r = await fetch(`${AIVIS_URL}/version`, { signal: AbortSignal.timeout(8000) })
+    if (r.ok) lastAlive = Date.now()
     return r.ok
   } catch {
     return false

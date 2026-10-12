@@ -177,5 +177,10 @@ export function ensureCards() {
       SELECT 'vocab', id, 1, (5 - level) * 100000 + rank * 10 + 1 FROM vocab;
     INSERT OR IGNORE INTO cards(deck, note_id, ord, position)
       SELECT 'grammar', id, 0, (5 - level) * 100000 + rank * 10 FROM grammar;
+    -- thẻ chưa học (và không bị "học ngay") đi theo thứ tự mới của nội dung
+    UPDATE cards SET position = (SELECT (5 - v.level) * 100000 + v.rank * 10 + cards.ord FROM vocab v WHERE v.id = cards.note_id)
+      WHERE deck = 'vocab' AND state = 0 AND position > 0 AND note_id IN (SELECT id FROM vocab WHERE custom = 0);
+    UPDATE cards SET position = (SELECT (5 - g.level) * 100000 + g.rank * 10 FROM grammar g WHERE g.id = cards.note_id)
+      WHERE deck = 'grammar' AND state = 0 AND position > 0;
   `)
 }

@@ -186,7 +186,14 @@ function main() {
   }
   for (const level of [5, 4, 3]) {
     const lv = vocab.filter((v) => v.level === level).sort((a, b) => score(a) - score(b))
-    lv.forEach((v, i) => (v.rank = i + 1))
+    // Từ cùng mặt chữ (VD 中: なか/ちゅう/じゅう) không học liền nhau: lần xuất hiện thứ k lùi thêm k×60 vị trí
+    const seenWord = new Map<string, number>()
+    const keyed = lv.map((v, i) => {
+      const k = seenWord.get(v.word) ?? 0
+      seenWord.set(v.word, k + 1)
+      return { v, pos: i + k * 60 }
+    })
+    keyed.sort((a, b) => a.pos - b.pos).forEach((x, i) => (x.v.rank = i + 1))
   }
   vocab.sort((a, b) => b.level - a.level || a.rank - b.rank)
 

@@ -22,6 +22,15 @@ export async function runSmoke(win: BrowserWindow, api: Record<string, (...a: an
     await sleep(wait)
   }
   const mode = process.env.SMOKE_TEST ?? '1'
+  if (mode === 'sched') {
+    try {
+      await schedTest(log)
+    } catch (e) {
+      log('ERROR', (e as Error).stack)
+    }
+    win.close()
+    return
+  }
   try {
     await sleep(2500)
     // ---- Mô phỏng một buổi ôn thẻ
@@ -79,4 +88,46 @@ export async function runSmoke(win: BrowserWindow, api: Record<string, (...a: an
     log('ERROR', (e as Error).stack)
   }
   win.close()
+}
+
+/** Kiểm tra vòng đời thẻ & load balancer trên DB thử nghiệm. */
+async function schedTest(log: (...a: unknown[]) => void) {
+  const { getDb } = await import('./db')
+  const sch = await import('./scheduler')
+  const db = getDb()
+  const get = (id: number) => db.prepare('SELECT * FROM cards WHERE id = ?').get(id) as any
+  const fmt = (c: any) => `state=${c.state} step=${c.learning_steps} S=${c.stability.toFixed(2)} D=${c.difficulty.toFixed(2)} ivl=${c.scheduled_days} due=${new Date(c.due).toLocaleString('vi-VN')} lapses=${c.lapses}`
+  const r = sch.nextCard('vocab')
+  const id = r.card!.id
+  sch.answerCard(id, 3, 5000)
+  log('new→Good:', fmt(get(id)))
+  db.prepare('UPDATE cards SET due = ? WHERE id = ?').run(Date.now() - 1000, id)
+  sch.answerCard(id, 3, 5000)
+  log('learn→Good:', fmt(get(id)))
+  // giả lập đã qua đúng hạn
+  const c1 = get(id)
+  db.prepare('UPDATE cards SET due = ?, last_review = ? WHERE id = ?').run(Date.now() - 1000, Date.now() - c1.scheduled_days * 86400000, id)
+  log('preview khi tới hạn:', JSON.stringify(sch.previewIntervals(get(id))))
+  sch.answerCard(id, 3, 5000)
+  log('review→Good:', fmt(get(id)))
+  db.prepare('UPDATE cards SET due = ?, last_review = ? WHERE id = ?').run(Date.now() - 1000, Date.now() - get(id).scheduled_days * 86400000, id)
+  sch.answerCard(id, 1, 5000)
+  log('review→Again:', fmt(get(id)))
+  db.prepare('UPDATE cards SET due = ? WHERE id = ?').run(Date.now() - 1000, id)
+  sch.answerCard(id, 3, 5000)
+  log('relearn→Good:', fmt(get(id)))
+
+  // Load balancer: 300 thẻ review giống hệt nhau (S=20 ngày), trả lời Good → xem phân bố ngày
+  const ids = (db.prepare(`SELECT id FROM cards WHERE deck='vocab' AND state = 0 LIMIT 300 OFFSET 50`).all() as { id: number }[]).map((x) => x.id)
+  const last = Date.now() - 20 * 86400000
+  for (const cid of ids)
+    db.prepare(`UPDATE cards SET state=2, stability=20, difficulty=5, scheduled_days=20, reps=3, due=?, last_review=? WHERE id=?`).run(Date.now() - 1000, last, cid)
+  const hist = new Map<number, number>()
+  for (const cid of ids) {
+    sch.answerCard(cid, 3, 3000)
+    const c = get(cid)
+    hist.set(c.scheduled_days, (hist.get(c.scheduled_days) ?? 0) + 1)
+  }
+  log('phân bố khoảng ôn sau Good (300 thẻ):', JSON.stringify([...hist.entries()].sort((a, b) => a[0] - b[0])))
+  log('dayIndex hôm nay', sch.today(), 'bắt đầu ngày', new Date(sch.dayStart(sch.today())).toLocaleString('vi-VN'))
 }
