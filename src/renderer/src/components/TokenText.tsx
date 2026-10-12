@@ -4,6 +4,7 @@ import { playText } from '@/lib/audio'
 import { Furigana, PitchAccent } from './jp'
 import { IconPlus, IconSparkles, IconX } from './icons'
 import { AudioButton, Badge, Button, Spinner, cx } from './ui'
+import { ListenHelp } from './ListenHelp'
 
 export type Passage = NonNullable<ApiResult<'passage.get'>>
 export type Sent = Passage['sentences'][number]
@@ -72,6 +73,7 @@ export function WordPanel({ tok, sent, onClose, onAdded }: { tok: ATok; sent: Se
           <div className="mt-1 flex items-center gap-2">
             <PitchAccent reading={reading} accent={data?.vocab?.pitch?.[0]} />
             <AudioButton size="sm" onPlay={() => playText(reading, { accent: data?.vocab?.pitch?.[0] ?? null })} />
+            <ListenHelp text={data?.vocab?.word ?? tok.b} kind="word" />
           </div>
         </div>
         <button onClick={onClose} className="text-muted hover:text-ink"><IconX /></button>

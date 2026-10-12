@@ -5,6 +5,7 @@ import { AudioButton, Badge, Button, Card, Segmented, Spinner } from '@/componen
 import { type ApiResult, call } from '@/lib/api'
 import { playText } from '@/lib/audio'
 import { useAsync } from '@/lib/hooks'
+import { ListenHelp } from '@/components/ListenHelp'
 
 const STATUS_LABEL: Record<string, { label: string; tone: 'muted' | 'accent' | 'indigo' | 'good' | 'warn' }> = {
   new: { label: 'Chưa học', tone: 'muted' },
@@ -115,6 +116,7 @@ function WordDetail({ id, onClose, onChanged }: { id: number; onClose: () => voi
       <div className="mt-2 flex items-center gap-2">
         <PitchAccent reading={v.reading} accent={v.pitch?.[0]} />
         <AudioButton size="sm" onPlay={() => playText(v.reading, { accent: v.pitch?.[0] ?? null })} />
+        <ListenHelp text={v.word} kind="word" opts={{ accent: v.pitch?.[0] ?? null }} />
       </div>
       <div className="mt-3 text-lg font-semibold">{v.vi}</div>
       {v.note && <div className="text-sm text-muted">{v.note}</div>}
@@ -125,6 +127,7 @@ function WordDetail({ id, onClose, onChanged }: { id: number; onClose: () => voi
             <div>
               <Furigana segs={v.exFuri} className="leading-loose" />
               <div className="text-sm text-muted">{v.exVi}</div>
+              <ListenHelp text={v.ex} className="mt-1" />
             </div>
           </div>
         </div>

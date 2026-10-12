@@ -7,6 +7,7 @@ import { call } from '@/lib/api'
 import { getRate, playSequence, playText, resolveAudio, mediaUrl, setRate, stopAudio } from '@/lib/audio'
 import { useAsync, useKeys, useStudyTimer } from '@/lib/hooks'
 import { QuestionsBlock } from '../reading/QuestionsBlock'
+import { ListenHelp } from '@/components/ListenHelp'
 
 /** Trình phát bài nghe: nghe cả bài / từng câu, ẩn-hiện lời, dịch, shadowing có ghi âm. */
 export function ListeningPlayer() {
@@ -123,6 +124,7 @@ function PlayerInner({ p, reload }: { p: Passage; reload: () => void }) {
                     </button>
                   )}
                   {showVi && <div className="mt-1 text-sm text-muted">{s.vi}</div>}
+                  {visible && <ListenHelp text={s.jp} opts={{ role: s.sp ?? 'A' }} className="mt-1" />}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <button title="Nghe câu này" onClick={() => playLine(i)} className="flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-paper hover:text-ink">

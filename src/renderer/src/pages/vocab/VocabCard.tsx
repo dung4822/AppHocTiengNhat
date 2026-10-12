@@ -3,6 +3,7 @@ import type { CardRenderProps } from '@/components/ReviewSession'
 import { Furigana, PitchAccent } from '@/components/jp'
 import { AudioButton, Badge, cx } from '@/components/ui'
 import { playText } from '@/lib/audio'
+import { ListenHelp } from '@/components/ListenHelp'
 
 type View = CardRenderProps['view']
 type Vocab = NonNullable<View['vocab']>
@@ -58,6 +59,7 @@ export function VocabCard({ view, revealed }: CardRenderProps) {
             <div className="flex items-center gap-3">
               <PitchAccent reading={v.reading} accent={v.pitch?.[0]} className="text-lg" />
               <AudioButton size="sm" onPlay={() => playWord(v)} />
+              <ListenHelp text={v.word} kind="word" opts={{ accent: v.pitch?.[0] ?? null }} />
             </div>
             <div className="mt-3 text-2xl font-semibold">{v.vi}</div>
             {v.note && <div className="mt-1 max-w-xl text-sm text-muted">{v.note}</div>}
@@ -75,6 +77,7 @@ export function VocabCard({ view, revealed }: CardRenderProps) {
               <div>
                 <Furigana segs={v.exFuri.length ? v.exFuri : [{ t: v.ex }]} className="text-lg leading-loose" />
                 <div className="text-sm text-muted">{v.exVi}</div>
+                <ListenHelp text={v.ex} className="mt-2" />
               </div>
             </div>
           )}

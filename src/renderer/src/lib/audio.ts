@@ -34,6 +34,8 @@ export const mediaUrl = (rel: string) => `media://audio/${rel}`
 
 export interface PlayOpts {
   accent?: number | null
+  /** tốc độ riêng cho lần phát này (VD 0.7 = nghe chậm) */
+  rate?: number
   speaker?: number
   /** dùng khi nhiều câu trong bài nghe: giọng theo vai */
   role?: 'A' | 'B'
@@ -51,13 +53,14 @@ export async function playText(text: string, opts: PlayOpts = {}): Promise<boole
   const my = ++token
   const rel = await resolveAudio(text, opts)
   if (!rel || my !== token) return false
-  return playUrl(mediaUrl(rel), my)
+  return playUrl(mediaUrl(rel), my, opts.rate)
 }
 
-function playUrl(url: string, my: number): Promise<boolean> {
+function playUrl(url: string, my: number, r?: number): Promise<boolean> {
   return new Promise((resolve) => {
     const a = new Audio(url)
-    a.playbackRate = rate
+    a.preservesPitch = true
+    a.playbackRate = r ?? rate
     current = a
     emit(true)
     const done = (ok: boolean) => {

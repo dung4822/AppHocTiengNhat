@@ -5,6 +5,7 @@ import { playText } from '@/lib/audio'
 import { useKeys } from '@/lib/hooks'
 import { IconCheck, IconRepeat, IconX } from './icons'
 import { AudioButton, Badge, Button, Card, Kbd, cx } from './ui'
+import { ListenHelp } from './ListenHelp'
 
 export type JQuestion = ApiResult<'jlpt.make'>[number]
 
@@ -178,6 +179,7 @@ export function QuizRunner({ questions, kind, onExit, header }: { questions: JQu
           <div className="mt-5 flex items-start justify-between gap-4 rounded-xl bg-paper p-4 fade-in">
             <div className="text-sm leading-relaxed whitespace-pre-wrap">
               {q.audio && <div className="jp mb-1 text-base">{q.audio.text}</div>}
+              {q.audio && <ListenHelp text={q.audio.text} kind={q.type === 'listenWord' ? 'word' : 'sentence'} className="mb-2" />}
               {q.explain}
             </div>
             <div className="flex shrink-0 items-center gap-2">

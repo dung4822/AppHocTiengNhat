@@ -5,6 +5,7 @@ import { AudioButton, Badge, Button, Card, PageHeader, Segmented, Spinner, Tabs,
 import { call } from '@/lib/api'
 import { playText } from '@/lib/audio'
 import { useAsync } from '@/lib/hooks'
+import { ListenHelp } from '@/components/ListenHelp'
 
 type Tab = 'review' | 'list'
 
@@ -80,6 +81,7 @@ function GrammarCard({ view, revealed, intro }: CardRenderProps) {
                 <div>
                   <Furigana segs={e.furi.length ? e.furi : [{ t: e.jp }]} className="text-lg leading-loose" />
                   <div className="text-sm text-muted">{e.vi}</div>
+                  <ListenHelp text={e.jp} className="mt-1" />
                 </div>
               </div>
             ))}
@@ -122,6 +124,7 @@ function GrammarList() {
                       <div>
                         <Furigana segs={e.furi} className="leading-loose" />
                         <div className="text-muted">{e.vi}</div>
+                        <ListenHelp text={e.jp} className="mt-1" />
                       </div>
                     </div>
                   ))}
