@@ -3,8 +3,12 @@ out
 dist
 .env
 apikey.txt
-data/
+data/*
+!data/content/
 pipeline/cache/
 *.log
 .cache/
 tools/aivis/
+.env*
+*.key
+*.pem
